@@ -1,5 +1,5 @@
-# CI--WORKFLOW
-name: Build and Push Docker Image 
+# CI/CD WORKFLOW
+name: Build and Push 
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
           context: ./php
           file: ./php/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/myproject_php:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:php-latest
 
       - name: Set up Docker Compose
         run: |
@@ -44,11 +44,11 @@ jobs:
       - name: Commit and push MySQL image
         run: |
           CONTAINER_ID=$(docker-compose ps -q db)
-          docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/myproject_mysql:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myproject_mysql:latest
+          docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:mysql-latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:mysql-latest
 
       - name: Commit and push phpMyAdmin image
         run: |
           CONTAINER_ID=$(docker-compose ps -q phpmyadmin)
-          docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/myproject_phpmyadmin:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myproject_phpmyadmin:latest
+          docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:phpmyadmin-latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:phpmyadmin-latest
