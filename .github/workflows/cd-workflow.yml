@@ -18,19 +18,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Minikube
-      uses: medikoo/minikube-action@v1
-      with:
-        minikube_version: '1.23.0'  # Spécifiez la version de Minikube souhaitée
+    - name: Install Minikube and kubectl
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        curl -LO https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
 
     - name: Start Minikube
       run: |
         minikube start --driver=docker
 
     - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: v1.23.0
+      run: |
+        kubectl config use-context minikube
 
     - name: Deploy to Kubernetes
       run: |
