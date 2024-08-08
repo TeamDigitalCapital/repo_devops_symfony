@@ -62,3 +62,10 @@ jobs:
       run: |
         kubectl get deployments
         kubectl get pods
+
+    - name: Get URLs for Services
+      run: |
+        echo "MySQL Service:"
+        kubectl port-forward service/mysql 3306:3306 &
+        echo "PHP Apache Service URL:"
+        minikube service php-apache --url
