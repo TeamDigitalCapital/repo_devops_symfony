@@ -15,57 +15,50 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install Minikube and kubectl
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y curl
-        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        sudo install minikube-linux-amd64 /usr/local/bin/minikube
-        curl -LO https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
+      - name: Install Minikube and kubectl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          curl -LO https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
 
-    - name: Start Minikube
-      run: |
-        minikube start --driver=docker
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
 
-    - name: Set up kubectl
-      run: |
-        kubectl config use-context minikube
+      - name: Set up kubectl
+        run: |
+          kubectl config use-context minikube
 
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f k8s/pvc.yml
-        kubectl apply -f k8s/database.yml
-        kubectl apply -f k8s/app.yml
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/pvc.yml
+          kubectl apply -f k8s/database.yml
+          kubectl apply -f k8s/app.yml
 
-    - name: Wait for MySQL to be ready
-      run: |
-        kubectl rollout status deployment/mysql --timeout=120s
+      - name: Wait for MySQL to be ready
+        run: |
+          kubectl rollout status deployment/mysql --timeout=120s
 
-    - name: Wait for PHP Apache to be ready
-      run: |
-        kubectl rollout status deployment/php-apache --timeout=120s
+      - name: Wait for PHP Apache to be ready
+        run: |
+          kubectl rollout status deployment/php-apache --timeout=120s
 
-    - name: Verify MySQL Service
-      run: |
-        kubectl get service mysql
+      - name: Verify MySQL Service
+        run: |
+          kubectl get service mysql
 
-    - name: Verify PHP Apache Service
-      run: |
-        kubectl get service php-apache
+      - name: Verify PHP Apache Service
+        run: |
+          kubectl get service php-apache
 
-    - name: Output Deployment Status
-      run: |
-        kubectl get deployments
-        kubectl get pods
-
-    - name: Get URLs for Services
-      run: |
-        echo "MySQL Service:"
-        kubectl port-forward service/mysql 3306:3306 &
-        echo "PHP Apache Service URL:"
-        minikube service php-apache --url
+      - name: Output Deployment Status
+        run: |
+          kubectl get deployments
+          kubectl get pods
