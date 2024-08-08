@@ -19,7 +19,7 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: www-data
-          mountPath: /var/www
+          mountPath: /var/www/html  # Correction du chemin
       volumes:
       - name: www-data
         persistentVolumeClaim:
