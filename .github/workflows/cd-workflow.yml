@@ -33,11 +33,16 @@ jobs:
       run: |
         docker buildx build --push --tag solmos034/symfony_project01:latest .
 
-    - name: Set up Minikube
-      uses: medikoo/minikube-action@v1
-      with:
-        minikube-version: 'latest'
-        kubernetes-version: '1.23.0'  # Adjust as necessary
+    - name: Install Minikube
+      run: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
 
     - name: Start Minikube
       run: minikube start --driver=docker
