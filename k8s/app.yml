@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: php-apache
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:php-latest
+        image: solmos034/symfony_project01:php-latest
         ports:
         - containerPort: 80
         volumeMounts:

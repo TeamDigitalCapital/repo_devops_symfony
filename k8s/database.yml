@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/symfony_project01:mysql-latest
+        image: solmos034/symfony_project01:mysql-latest
         ports:
         - containerPort: 3306
         env:
