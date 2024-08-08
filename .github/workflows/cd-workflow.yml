@@ -18,41 +18,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Cache Docker layers
-      uses: actions/cache@v3
+    - name: Set up Minikube
+      uses: medikoo/minikube-action@v1
       with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
-    - name: Build Docker image
-      run: |
-        docker buildx build --push --tag solmos034/symfony_project01:latest .
-
-    - name: Install Minikube
-      run: |
-        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        sudo install minikube-linux-amd64 /usr/local/bin/minikube
-
-    - name: Install kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
+        minikube_version: '1.23.0'  # Spécifiez la version de Minikube souhaitée
 
     - name: Start Minikube
-      run: minikube start --driver=docker
+      run: |
+        minikube start --driver=docker
 
     - name: Set up kubectl
-      run: |
-        mkdir -p $HOME/.kube
-        minikube kubectl -- config view --raw > $HOME/.kube/config
+      uses: azure/setup-kubectl@v3
+      with:
+        version: v1.23.0
 
-    - name: Deploy to Minikube
+    - name: Deploy to Kubernetes
       run: |
         kubectl apply -f k8s/pvc.yml
         kubectl apply -f k8s/database.yml
@@ -78,6 +58,3 @@ jobs:
       run: |
         kubectl get deployments
         kubectl get pods
-
-    - name: Clean up Minikube
-      run: minikube delete
