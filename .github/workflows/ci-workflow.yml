@@ -1,5 +1,5 @@
-# CI/CD WORKFLOW
-name: Build and Push 
+# CI WORKFLOW
+name: Continuous Integration
 
 on:
   push:
