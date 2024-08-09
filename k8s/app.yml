@@ -19,7 +19,7 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: www-data
-          mountPath: /var/www/html  # Correction du chemin
+          mountPath: /var/www/html  
       volumes:
       - name: www-data
         persistentVolumeClaim:
@@ -27,14 +27,3 @@ spec:
 
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: php-apache
-spec:
-  selector:
-    app: php-apache
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
