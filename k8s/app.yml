@@ -1,39 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: symfony-vhosts-config
+data:
+  vhosts.conf: |
+    <VirtualHost *:80>
+        ServerName localhost
+
+        DocumentRoot /var/www/html/projet_symfony/public
+        DirectoryIndex index.php
+
+        <Directory /var/www/html/projet_symfony/public>
+            Options Indexes FollowSymLinks Includes ExecCGI
+            AllowOverride All
+            Require all granted
+
+            FallbackResource /index.php
+        </Directory>
+
+        <Directory /var/www/html/projet_symfony/public/bundles>
+            FallbackResource disabled
+        </Directory>
+
+        ErrorLog /var/log/apache2/project_error.log
+        CustomLog /var/log/apache2/project_access.log combined
+
+        # Optionally set the value of the environment variables used in the application
+        # SetEnv APP_ENV prod
+        # SetEnv APP_SECRET <app-secret-id>
+        # SetEnv DATABASE_URL "mysql://db_user:db_pass@host:3306/db_name"
+    </VirtualHost>
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: php-apache
+  name: symfony-deployment
+  labels:
+    app: symfony
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: php-apache
+      app: symfony
   template:
     metadata:
       labels:
-        app: php-apache
+        app: symfony
     spec:
       containers:
-      - name: php-apache
+      - name: symfony
         image: solmos034/symfony_project01:php-latest
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: www-data
-          mountPath: /var/www/html  
+        - name: vhosts-config
+          mountPath: /etc/apache2/sites-enabled/000-default.conf
+          subPath: vhosts.conf
+        - name: app-code
+          mountPath: /var/www/html/projet_symfony
       volumes:
-      - name: www-data
-        persistentVolumeClaim:
-          claimName: www-pvc
+      - name: vhosts-config
+        configMap:
+          name: symfony-vhosts-config
+      - name: app-code
+        hostPath:
+          path: /mnt/c/Users/pc/docker-projet/projet_symfony
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: php-apache
+  name: symfony-service
 spec:
   selector:
-    app: php-apache
+    app: symfony
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
+  type: NodePort
