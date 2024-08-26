@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-config
+data:
+  vhosts.conf: |
+    <VirtualHost *:80>
+        ServerName localhost
+
+        # Le DocumentRoot pointe directement vers le répertoire 'public'
+        DocumentRoot /var/www/projet_symfony/projet_symfony/public
+        DirectoryIndex index.php
+
+        # Configuration pour le répertoire 'public'
+        <Directory /var/www/projet_symfony/projet_symfony/public>
+            Options Indexes FollowSymLinks Includes ExecCGI
+            AllowOverride All
+            Require all granted
+            FallbackResource /index.php
+        </Directory>
+
+        # Configuration pour les bundles (si applicable)
+        <Directory /var/www/projet_symfony/projet_symfony/public/bundles>
+            FallbackResource disabled
+        </Directory>
+
+        # Fichiers de log
+        ErrorLog /var/log/apache2/project_error.log
+        CustomLog /var/log/apache2/project_access.log combined
+    </VirtualHost>
