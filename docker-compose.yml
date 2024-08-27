@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-    # Conteneur MYSQL 
+    #Conteneur MYSQL 
     db:
         image: mysql
         container_name: docker_mysql
@@ -12,8 +12,7 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         networks: 
             - dev
-
-    # Conteneur PHPMYADMIN
+    #Conteneur PHPMYADMIN
     phpmyadmin:
         depends_on:
             - db
@@ -27,21 +26,20 @@ services:
         networks:
             - dev
             
-    # Conteneur php + apache
+    #Conteneur php + apache
     www:
-        build:
+        build: 
             context: .
             dockerfile: Dockerfile
         container_name: docker_www
         ports:
-            - "8082:80"
+            - 8082:80
         volumes: 
-            - ./php/vhosts:/etc/apache2/sites-available
-            - ./projet_symfony:/var/www/html 
+            - ./php/vhosts:/etc/apache2/sites-enabled
+            - ./:/var/www/html/projet_symfony/public
         restart: always
         networks:
             - dev
-
 networks: 
     dev:
 

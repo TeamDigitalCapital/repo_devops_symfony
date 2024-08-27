@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: symfony-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: symfony-app
+  template:
+    metadata:
+      labels:
+        app: symfony-app
+    spec:
+      containers:
+      - name: symfony-app
+        image: solmos034/app_update:www-v1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: symfony-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: symfony-app
