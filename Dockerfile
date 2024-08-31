@@ -32,5 +32,6 @@ RUN chmod -R 755 /var/www/html/projet_symfony/
 
 RUN chown -R www-data:www-data /var/www/html
 
+
 # Définit le répertoire de travail par défaut
 WORKDIR /var/www/
