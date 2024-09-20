@@ -1,4 +1,4 @@
-# CI WORKFLOW  
+# CI WORKFLOW
 name: Continuous Integration
 
 on:
@@ -24,53 +24,44 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build and push PHP image from Dockerfile
       - name: Build and push PHP image
         uses: docker/build-push-action@v2
         with:
-          context: ./php
-          file: ./php/Dockerfile
+          context: ./resources/docker/php
+          file: ./resources/docker/php/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest
 
-      - name: Build and push MySQL image
+      # Build and push NGINX image from Dockerfile
+      - name: Build and push NGINX image
         uses: docker/build-push-action@v2
         with:
-          context: ./mysql
-          file: ./mysql/Dockerfile
+          context: ./resources/docker/nginx
+          file: ./resources/docker/nginx/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
-
-      - name: Build and push phpMyAdmin image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./phpmyadmin
-          file: ./phpmyadmin/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/phpmyadmin:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nginx7:latest
 
       - name: Set up Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
+      # Start services using Docker Compose
       - name: Start Docker Compose services
         run: |
-          docker-compose up -d
+          docker-compose -f ./resources/docker/docker-compose.yml up -d
 
-      - name: Commit and push PHP 7 container image
+      # Commit and push MySQL container image
+      - name: Commit and push MySQL image
         run: |
-          CONTAINER_ID=$(docker-compose ps -q php7-service)
-          docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest
-
-      - name: Commit and push MySQL container image
-        run: |
-          CONTAINER_ID=$(docker-compose ps -q db)
+          CONTAINER_ID=$(docker-compose -f ./resources/docker/docker-compose.yml ps -q db)
           docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
 
-      - name: Commit and push phpMyAdmin container image
+      # Commit and push phpMyAdmin container image
+      - name: Commit and push phpMyAdmin image
         run: |
-          CONTAINER_ID=$(docker-compose ps -q phpmyadmin)
+          CONTAINER_ID=$(docker-compose -f ./resources/docker/docker-compose.yml ps -q phpmyadmin)
           docker commit $CONTAINER_ID ${{ secrets.DOCKERHUB_USERNAME }}/phpmyadmin:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/phpmyadmin:latest
