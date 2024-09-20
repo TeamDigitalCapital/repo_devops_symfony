@@ -1,0 +1,41 @@
+# php7-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php7-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php7
+  template:
+    metadata:
+      labels:
+        app: php7
+    spec:
+      containers:
+      - name: php7
+        image: solmos034/php7:latest
+        ports:
+        - containerPort: 9000
+---
+# nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: solmos034/nginx7:latest
+        ports:
+        - containerPort: 80
