@@ -35,12 +35,12 @@ jobs:
 
       - name: Build and push PHP image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest ./php
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest 
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/php7:latest
 
       - name: Build and push Nginx image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx7:latest ./nginx
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx7:latest 
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx7:latest
 
       - name: Commit and push MySQL container image
