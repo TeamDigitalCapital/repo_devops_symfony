@@ -3,16 +3,26 @@ name: Continuous Deployment
 
 on:
   workflow_run:
-    workflows: ["Continuous Integration"] # The CI workflow name
+    workflows: ["Continuous Integration"]
     types:
       - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only deploy if CI was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: List files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List of files:"
+          ls -R ./resources/kubernetes/deployments/
+
       - name: Set up Minikube
         run: |
           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
