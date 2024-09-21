@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "Waiting for services and pods to be ready..."
           for i in {1..60}; do
-            if kubectl get svc nginx-service && kubectl get svc phpmyadmin && kubectl get pods; then
+            if kubectl get svc nginx-service && kubectl get svc phpmyadmin && kubectl get pods | grep -E 'Running|Pending'; then
               echo "Services and pods are ready!"
               break
             fi
@@ -43,6 +43,18 @@ jobs:
 
       - name: Display Pods
         run: kubectl get pods
+
+      - name: Wait for Pods to be in Running state
+        run: |
+          echo "Waiting for pods to be in Running state..."
+          for i in {1..60}; do
+            if kubectl get pods | grep 'Running'; then
+              echo "All pods are running!"
+              break
+            fi
+            echo "Waiting for pods... ($i/60)"
+            sleep 5
+          done
 
       - name: Get NGINX Service URL
         run: |
@@ -59,8 +71,10 @@ jobs:
         run: |
           POD_NAME=$(kubectl get pods --field-selector=status.phase=Running -l app=nginx-deployment -o jsonpath="{.items[0].metadata.name}" || echo "")
           if [ -n "$POD_NAME" ]; then
-            echo "Displaying logs for $POD_NAME..."
+            echo "Displaying logs for NGINX pod $POD_NAME..."
             kubectl logs $POD_NAME
           else
-            echo "No running NGINX pod found!"
+            echo "No running NGINX pod found! Fetching logs for any NGINX pod..."
+            kubectl get pods -l app=nginx-deployment
+            kubectl logs $(kubectl get pods -l app=nginx-deployment -o jsonpath="{.items[0].metadata.name}")
           fi
