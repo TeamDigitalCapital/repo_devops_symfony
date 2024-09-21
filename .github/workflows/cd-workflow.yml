@@ -22,7 +22,7 @@ jobs:
         run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
 
       - name: Create phpMyAdmin Deployment
-        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmin.yaml
+        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmn.yaml
 
       - name: Create NGINX Service
         run: kubectl create -f ./resources/kubernetes/services/local-service.yaml
