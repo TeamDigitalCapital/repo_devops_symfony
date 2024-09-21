@@ -1,0 +1,38 @@
+# CD WORKFLOW
+name: Continuous Deployment
+
+on:
+  workflow_run:
+    workflows: ["Continuous Integration"] # The CI workflow name
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only deploy if CI was successful
+
+    steps:
+      - name: Set up Minikube
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          minikube start --driver=docker
+
+      - name: Deploy MySQL
+        run: kubectl create -f resources/kubernetes/deployments/mysql.yaml
+
+      - name: Deploy phpMyAdmin
+        run: kubectl create -f resources/kubernetes/deployments/phpmyadmin.yaml
+
+      - name: Deploy PHP and NGINX
+        run: kubectl create -f resources/kubernetes/deployments/local-deployment.yaml
+
+      - name: Get Pods
+        run: kubectl get pods
+
+      - name: Get NGINX Service URL
+        run: minikube service nginx-service --url
+
+      - name: Get phpMyAdmin Service URL
+        run: minikube service phpmyadmin --url
