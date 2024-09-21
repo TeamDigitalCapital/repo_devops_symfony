@@ -33,18 +33,23 @@ jobs:
         run: |
           echo "Waiting for services and pods to be ready..."
           for i in {1..60}; do
-            # Vérifier si les services sont présents
+            # Vérifier si les services nginx et phpmyadmin sont disponibles
             if kubectl get svc nginx-service && kubectl get svc phpmyadmin; then
-              # Vérifier si les pods sont en statut "Running"
-              PODS_READY=$(kubectl get pods --no-headers | grep -c 'Running')
+              # Vérifier si les pods sont prêts (Running ou Completed)
+              PODS_READY=$(kubectl get pods --no-headers | grep -E 'Running|Completed' | wc -l)
               if [ "$PODS_READY" -ge 2 ]; then
                 echo "Services and pods are ready!"
-                break
+                exit 0
               fi
             fi
             echo "Waiting for services and pods... ($i/60)"
             sleep 5
           done
+
+          # Si après 5 minutes, les pods ne sont pas prêts, afficher un message d'erreur et quitter avec une erreur
+          echo "Services or pods did not become ready within the expected time."
+          kubectl get pods
+          exit 1
 
       - name: Display Pods
         run: kubectl get pods
