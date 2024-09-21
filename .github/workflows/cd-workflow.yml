@@ -17,6 +17,7 @@ jobs:
       - name: Set up Minikube
         run: |
           minikube start
+          kubectl config use-context minikube
 
       - name: Create MySQL Deployment
         run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
@@ -29,6 +30,13 @@ jobs:
 
       - name: Create NGINX Deployment
         run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
+
+      - name: Wait for NGINX service
+        run: |
+          while ! kubectl get svc nginx-service; do
+            echo "Waiting for NGINX service to be created..."
+            sleep 2
+          done
 
       - name: List all Services
         run: kubectl get svc
