@@ -10,39 +10,38 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: List files
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "List of files:"
-          ls -R ./resources/kubernetes/deployments/
-
       - name: Set up Minikube
         run: |
           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
-          minikube start --driver=docker
+          minikube start
 
-      - name: Deploy MySQL
+      - name: Create MySQL deployment
         run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
 
-      - name: Deploy phpMyAdmin
-        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmn.yaml  # Corrected file name
+      - name: Create phpMyAdmin deployment
+        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmn.yaml
 
-      - name: Deploy PHP and NGINX
+      - name: Create local deployment
         run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
 
       - name: Get Pods
         run: kubectl get pods
 
+      - name: Get Services
+        run: kubectl get svc  # List all services to confirm
+
       - name: Get NGINX Service URL
-        run: minikube service nginx-service --url
+        run: |
+          NGINX_URL=$(minikube service nginx-service --url || echo "Service not found")
+          echo "NGINX Service URL: $NGINX_URL"
 
       - name: Get phpMyAdmin Service URL
-        run: minikube service phpmyadmin --url
+        run: |
+          PHPMYADMIN_URL=$(minikube service phpmyadmin --url || echo "Service not found")
+          echo "phpMyAdmin Service URL: $PHPMYADMIN_URL"
