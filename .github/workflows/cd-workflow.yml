@@ -29,17 +29,32 @@ jobs:
       - name: Create PHP7 and NGINX Deployments
         run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
 
-      - name: Wait for services to be ready
+      - name: Wait for services and pods to be ready
         run: |
-          echo "Waiting for services to be ready..."
+          echo "Waiting for services and pods to be ready..."
           for i in {1..60}; do
+            # Vérifier si les services sont présents
             if kubectl get svc nginx-service && kubectl get svc phpmyadmin; then
-              echo "Services are ready!"
-              break
+              # Vérifier si les pods sont en statut "Running"
+              PODS_READY=$(kubectl get pods --no-headers | grep -c 'Running')
+              if [ "$PODS_READY" -ge 2 ]; then
+                echo "Services and pods are ready!"
+                break
+              fi
             fi
-            echo "Waiting... ($i/60)"
+            echo "Waiting for services and pods... ($i/60)"
             sleep 5
           done
 
       - name: Display Pods
         run: kubectl get pods
+
+      - name: Get NGINX Service URL
+        run: |
+          NGINX_URL=$(minikube service nginx-service --url || echo "Service not found")
+          echo "NGINX Service URL: $NGINX_URL"
+
+      - name: Get PHPMyAdmin Service URL
+        run: |
+          PHP_MYADMIN_URL=$(minikube service phpmyadmin --url || echo "Service not found")
+          echo "PHPMyAdmin Service URL: $PHP_MYADMIN_URL"
