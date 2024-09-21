@@ -1,52 +1,50 @@
-name: Continuous Deployment
+name: CD Workflow
 
 on:
   workflow_run:
-    workflows: ["Continuous Integration"]
+    workflows: ["CI Workflow"]
     types:
       - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
       - name: Set up Minikube
         run: |
           minikube start
-          kubectl config use-context minikube
 
       - name: Create MySQL Deployment
         run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
 
-      - name: Create phpMyAdmin Deployment
+      - name: Create PHPMyAdmin Deployment
         run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmn.yaml
 
-      - name: Create NGINX Service
+      - name: Create Local Service
         run: kubectl create -f ./resources/kubernetes/services/local-service.yaml
 
-      - name: Create NGINX Deployment
+      - name: Create PHP7 and NGINX Deployments
         run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
 
-      - name: Wait for NGINX service
+      - name: Wait for services to be ready
         run: |
           while ! kubectl get svc nginx-service; do
-            echo "Waiting for NGINX service to be created..."
-            sleep 2
+            echo "Waiting for nginx-service..."
+            sleep 5
           done
 
-      - name: List all Services
-        run: kubectl get svc
+      - name: Display Pods
+        run: kubectl get pods
 
       - name: Get NGINX Service URL
         run: |
           NGINX_URL=$(minikube service nginx-service --url || echo "Service not found")
           echo "NGINX Service URL: $NGINX_URL"
 
-      - name: Get phpMyAdmin Service URL
+      - name: Get PHPMyAdmin Service URL
         run: |
-          PMA_URL=$(minikube service phpmyadmin --url || echo "Service not found")
-          echo "phpMyAdmin Service URL: $PMA_URL"
+          PHP_MYADMIN_URL=$(minikube service phpmyadmin --url || echo "Service not found")
+          echo "PHPMyAdmin Service URL: $PHP_MYADMIN_URL"
