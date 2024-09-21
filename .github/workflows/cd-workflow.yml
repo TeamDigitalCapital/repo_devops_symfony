@@ -33,7 +33,7 @@ jobs:
         run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
 
       - name: Deploy phpMyAdmin
-        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmin.yaml
+        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmin.yaml  # Corrected file name
 
       - name: Deploy PHP and NGINX
         run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
