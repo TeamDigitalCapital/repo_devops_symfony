@@ -44,10 +44,8 @@ jobs:
       - name: Display Pods
         run: kubectl get pods
 
-      - name: Get NGINX Service URL
-        run: |
-          NGINX_URL=$(minikube service nginx-service --url || echo "Service not found")
-          echo "NGINX Service URL: $NGINX_URL"
+      - name: minikube
+        run: minikube ip
 
       - name: Get PHPMyAdmin Service URL
         run: |
