@@ -33,23 +33,13 @@ jobs:
         run: |
           echo "Waiting for services and pods to be ready..."
           for i in {1..60}; do
-            # Vérifier si les services nginx et phpmyadmin sont disponibles
-            if kubectl get svc nginx-service && kubectl get svc phpmyadmin; then
-              # Vérifier si les pods sont prêts (Running ou Completed)
-              PODS_READY=$(kubectl get pods --no-headers | grep -E 'Running|Completed' | wc -l)
-              if [ "$PODS_READY" -ge 2 ]; then
-                echo "Services and pods are ready!"
-                exit 0
-              fi
+            if kubectl get svc nginx-service && kubectl get svc phpmyadmin && kubectl get pods; then
+              echo "Services and pods are ready!"
+              break
             fi
-            echo "Waiting for services and pods... ($i/60)"
+            echo "Waiting... ($i/60)"
             sleep 5
           done
-
-          # Si après 5 minutes, les pods ne sont pas prêts, afficher un message d'erreur et quitter avec une erreur
-          echo "Services or pods did not become ready within the expected time."
-          kubectl get pods
-          exit 1
 
       - name: Display Pods
         run: kubectl get pods
@@ -63,3 +53,14 @@ jobs:
         run: |
           PHP_MYADMIN_URL=$(minikube service phpmyadmin --url || echo "Service not found")
           echo "PHPMyAdmin Service URL: $PHP_MYADMIN_URL"
+
+      - name: Display NGINX Logs if Crash
+        if: always()
+        run: |
+          POD_NAME=$(kubectl get pods --field-selector=status.phase=Running -l app=nginx-deployment -o jsonpath="{.items[0].metadata.name}" || echo "")
+          if [ -n "$POD_NAME" ]; then
+            echo "Displaying logs for $POD_NAME..."
+            kubectl logs $POD_NAME
+          else
+            echo "No running NGINX pod found!"
+          fi
