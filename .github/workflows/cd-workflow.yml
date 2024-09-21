@@ -31,8 +31,13 @@ jobs:
 
       - name: Wait for services to be ready
         run: |
-          while ! kubectl get svc nginx-service; do
-            echo "Waiting for nginx-service..."
+          echo "Waiting for services to be ready..."
+          for i in {1..60}; do
+            if kubectl get svc nginx-service && kubectl get svc phpmyadmin; then
+              echo "Services are ready!"
+              break
+            fi
+            echo "Waiting... ($i/60)"
             sleep 5
           done
 
