@@ -20,13 +20,13 @@ jobs:
           minikube start --driver=docker
 
       - name: Deploy MySQL
-        run: kubectl create -f resources/kubernetes/deployments/mysql.yaml
+        run: kubectl create -f ./resources/kubernetes/deployments/mysql.yaml
 
       - name: Deploy phpMyAdmin
-        run: kubectl create -f resources/kubernetes/deployments/phpmyadmin.yaml
+        run: kubectl create -f ./resources/kubernetes/deployments/phpmyadmin.yaml
 
       - name: Deploy PHP and NGINX
-        run: kubectl create -f resources/kubernetes/deployments/local-deployment.yaml
+        run: kubectl create -f ./resources/kubernetes/deployments/local-deployment.yaml
 
       - name: Get Pods
         run: kubectl get pods
